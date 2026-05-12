@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "axiom-agent"
+version = "0.1.0"
+description = "The first agent runtime with built-in epistemic honesty"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["ai", "agents", "memory", "trust", "epistemic", "identity"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "cryptography>=41.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+api = ["fastapi>=0.104", "uvicorn>=0.24"]
+dev = ["pytest>=7", "anthropic>=0.25"]
+
+[project.urls]
+Homepage = "https://github.com/AILIFE1/axiom"
+Repository = "https://github.com/AILIFE1/axiom"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["axiom*"]
