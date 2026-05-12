@@ -9,13 +9,14 @@ Usage (installed):
     uvx axiom-mcp
 
 Environment:
-    ANTHROPIC_API_KEY  — required for the `think` tool
-    AXIOM_DATA_DIR     — where agent state is stored (default: ~/.axiom)
+    GROQ_API_KEY   — used for the `think` tool (free tier, llama-3.1-8b-instant)
+    AXIOM_DATA_DIR — where agent state is stored (default: ~/.axiom)
 """
 
 import json
 import os
 import sys
+import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -26,29 +27,40 @@ from axiom.epistemic.belief import Belief, Provenance
 
 mcp = FastMCP("axiom")
 
-ANTHROPIC_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
 DATA_DIR = Path(os.environ.get("AXIOM_DATA_DIR", Path.home() / ".axiom"))
 _agents: dict[str, AxiomAgent] = {}
 
 
 def _make_llm():
-    if not ANTHROPIC_KEY:
+    if not GROQ_KEY:
         def no_llm(prompt: str) -> str:
             return (
                 "CONFIDENCE: 0.0\n"
                 "PROVENANCE: error:no_llm\n"
-                "RESPONSE: ANTHROPIC_API_KEY not set — think tool unavailable"
+                "RESPONSE: GROQ_API_KEY not set — think tool unavailable"
             )
         return no_llm
-    import anthropic
-    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+
     def llm(prompt: str) -> str:
-        msg = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=1024,
-            messages=[{"role": "user", "content": prompt}],
+        body = json.dumps({
+            "model": "llama-3.1-8b-instant",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 1024,
+        }).encode()
+        req = urllib.request.Request(
+            "https://api.groq.com/openai/v1/chat/completions",
+            data=body,
+            headers={
+                "Authorization": f"Bearer {GROQ_KEY}",
+                "Content-Type": "application/json",
+                "User-Agent": "axiom-mcp/0.1",
+            },
+            method="POST",
         )
-        return msg.content[0].text
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return json.loads(r.read())["choices"][0]["message"]["content"]
+
     return llm
 
 
