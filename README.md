@@ -153,6 +153,18 @@ BuiltinConstraints.rate_limit("publish", 5)   # max 5 publish calls per minute
 
 ---
 
+## Support
+
+Axiom is built and maintained by one person in their spare time. If it's useful to you, a small contribution goes a long way.
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-support%20this%20project-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/YOUR_KOFI_USERNAME)
+
+**BCH:** `bitcoincash:qr3f60yk6yc0vut3hukhuch8dylwjnq8qvv0q5pnxv`
+
+No pressure — starring the repo and sharing it helps just as much.
+
+---
+
 ## License
 
 MIT
