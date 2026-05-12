@@ -152,7 +152,7 @@ BuiltinConstraints.rate_limit("publish", 5)   # max 5 publish calls per minute
 - [ ] Consensus mechanism: N agents must agree before high-stakes action fires
 - [ ] Gossip protocol: agents share verified high-confidence beliefs across a network
 - [ ] Cathedral sync: optional cloud backup of identity + drift timeline
-- [ ] MCP server: Axiom as a tool any Claude session can call
+- [x] MCP server: Axiom as a tool any Claude session can call (`axiom_mcp.py`)
 - [x] PyPI release — `pip install axiom-agent`
 
 ---
