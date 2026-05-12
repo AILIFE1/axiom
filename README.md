@@ -22,12 +22,16 @@ Axiom fixes all three.
 ## Install
 
 ```bash
+pip install axiom-agent
+```
+
+Or from source:
+
+```bash
 git clone https://github.com/AILIFE1/axiom
 cd axiom
 pip install -e .
 ```
-
-PyPI package coming soon: `pip install axiom-agent`
 
 ---
 
@@ -149,7 +153,7 @@ BuiltinConstraints.rate_limit("publish", 5)   # max 5 publish calls per minute
 - [ ] Gossip protocol: agents share verified high-confidence beliefs across a network
 - [ ] Cathedral sync: optional cloud backup of identity + drift timeline
 - [ ] MCP server: Axiom as a tool any Claude session can call
-- [ ] PyPI release
+- [x] PyPI release — `pip install axiom-agent`
 
 ---
 
