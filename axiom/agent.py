@@ -7,6 +7,7 @@ from .core.drift import DriftMonitor
 from .core.identity import AxiomIdentity
 from .core.memory import EpistemicMemory
 from .epistemic.belief import Belief, Provenance
+from .evolution import AxiomEvolution
 from .guardian.constraint import Constraint, Guardian
 from .trust.peer import PeerVerification, PeerVerifier
 
@@ -59,12 +60,15 @@ class AxiomAgent:
         llm: Callable[[str], str],
         constraints: List[Constraint] = None,
         cathedral_key: Optional[str] = None,
+        groq_api_key: Optional[str] = None,
         confidence_threshold: float = 0.6,
+        auto_evolve_threshold: int = 20,
         data_dir: Optional[Path] = None,
     ):
         self.name = name
         self.llm = llm
         self.confidence_threshold = confidence_threshold
+        self.auto_evolve_threshold = auto_evolve_threshold
 
         data_dir = data_dir or Path.home() / ".axiom" / name
         self.identity = AxiomIdentity(name, data_dir)
@@ -75,6 +79,9 @@ class AxiomAgent:
             audit_path=data_dir / "audit.jsonl",
         )
         self.verifier = PeerVerifier(name, cathedral_key)
+        self.evolution: Optional[AxiomEvolution] = (
+            AxiomEvolution(self.memory, groq_api_key) if groq_api_key else None
+        )
 
     # ------------------------------------------------------------------
     # Core interface
@@ -84,13 +91,40 @@ class AxiomAgent:
         """
         Ask the agent something. Returns a Belief with confidence + provenance.
         The LLM is prompted to be explicit about what it knows and how sure it is.
+        Auto-evolves when belief count crosses auto_evolve_threshold.
         """
         relevant = self.memory.recall(prompt, limit=3, min_confidence=0.4)
         full_prompt = self._build_epistemic_prompt(prompt, relevant)
         raw = self.llm(full_prompt)
         belief = self._parse_response(raw, prompt)
         self.memory.store(belief)
+
+        if (
+            self.evolution
+            and len(self.memory.all()) >= self.auto_evolve_threshold
+            and self.evolution.should_evolve()
+        ):
+            self.evolution.evolve()
+
         return belief
+
+    def evolve(self, topic: str = "") -> dict:
+        """
+        Manually trigger an evolution cycle — synthesise a new belief from the corpus.
+        Requires groq_api_key to have been set at init.
+        """
+        if not self.evolution:
+            return {"error": "groq_api_key not set — evolution unavailable"}
+        return self.evolution.evolve(topic)
+
+    def hypothesise(self, question: str) -> Optional[Belief]:
+        """
+        Generate a hypothesis from existing memory alone — no LLM call for the question itself.
+        Returns a Belief, or None if evolution is not configured.
+        """
+        if not self.evolution:
+            return None
+        return self.evolution.hypothesise(question)
 
     def act(
         self,
@@ -151,6 +185,8 @@ class AxiomAgent:
             "drift": self.drift_monitor.current_drift(),
             "constraints": len(self.guardian.constraints),
             "audit_events": len(self.guardian.audit_trail),
+            "evolution_cycles": len(self.evolution.cycles) if self.evolution else 0,
+            "evolution_enabled": self.evolution is not None,
         }
 
     # ------------------------------------------------------------------

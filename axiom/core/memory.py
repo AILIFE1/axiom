@@ -76,6 +76,21 @@ class EpistemicMemory:
             "corpus_hash": self._corpus_hash(),
         }
 
+    def _prune_to(self, survivors: List[Belief]):
+        """Replace stored beliefs with a filtered list (used by evolution engine)."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("DELETE FROM beliefs")
+            for b in survivors:
+                conn.execute(
+                    "INSERT INTO beliefs VALUES (?,?,?,?,?,?)",
+                    (
+                        b.id, b.content, b.confidence,
+                        json.dumps([{"source": p.source, "ref": p.ref} for p in b.provenance]),
+                        b.parent_id, b.timestamp.isoformat(),
+                    ),
+                )
+            conn.commit()
+
     def _corpus_hash(self) -> str:
         with sqlite3.connect(self.db_path) as conn:
             rows = conn.execute(

@@ -153,7 +153,7 @@ BuiltinConstraints.rate_limit("publish", 5)   # max 5 publish calls per minute
 - [ ] Gossip protocol: agents share verified high-confidence beliefs across a network
 - [ ] Cathedral sync: optional cloud backup of identity + drift timeline
 - [x] MCP server: Axiom as a tool any Claude session can call (`axiom_mcp.py`)
-- [x] PyPI release — `pip install axiom-agent`
+- [x] PyPI release — `pip install axiom-agent` (v0.2.0)
 
 ---
 
