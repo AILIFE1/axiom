@@ -205,5 +205,9 @@ def verify_peer(agent_name: str, peer_name: str, peer_snapshot_json: str = "") -
     }, indent=2)
 
 
-if __name__ == "__main__":
+def main():
     mcp.run()
+
+
+if __name__ == "__main__":
+    main()

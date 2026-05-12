@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "axiom-agent"
-version = "0.2.0"
+version = "0.2.1"
 description = "The first agent runtime with built-in epistemic honesty"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -21,7 +21,11 @@ classifiers = [
 dependencies = [
     "cryptography>=41.0",
     "requests>=2.31",
+    "mcp[cli]>=1.0.0",
 ]
+
+[project.scripts]
+axiom-mcp = "axiom_mcp:main"
 
 [project.optional-dependencies]
 api = ["fastapi>=0.104", "uvicorn>=0.24"]
@@ -34,3 +38,6 @@ Repository = "https://github.com/AILIFE1/axiom"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["axiom*"]
+
+[tool.setuptools]
+py-modules = ["axiom_mcp"]
